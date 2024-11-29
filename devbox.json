@@ -6,6 +6,7 @@
         "echo 'Welcome to devbox!' > /dev/null"
       ],
       "scripts": {
+        "test": "bin/test.sh",
         "init_day": "bin/init_day.sh",
         "shell": "iex -S mix run"
       }
