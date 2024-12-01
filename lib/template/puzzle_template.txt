@@ -18,16 +18,13 @@ defmodule Aoc.Day__DAY__ do
   end
 
   # helpers
-  def fetch_data() do
-    day = "__DAY__"
-    Aoc.Utils.Api.get_input(day)
-  end
-
-  def parse_input(input) do
+  defp parse_input(input) do
     input
     |> String.split("\n", trim: true)
     |> Enum.map(fn row ->
       row
     end)
   end
+
+  defp fetch_data(), do: Aoc.Utils.Api.get_input(__DAY__)
 end
