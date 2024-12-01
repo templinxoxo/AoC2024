@@ -13,8 +13,7 @@ defmodule Aoc.Day01 do
   def execute_part_2(data \\ fetch_data()) do
     data
     |> parse_input()
-
-    0
+    |> count_occurrences()
   end
 
   defp sort_columns(rows) do
@@ -30,6 +29,20 @@ defmodule Aoc.Day01 do
     |> Enum.sum()
   end
 
+  defp count_occurrences(list) do
+    [ids, duplicates] = Enum.zip_reduce(list, [], &[&1 | &2])
+
+    repetitions_count =
+      duplicates
+      |> Enum.group_by(& &1)
+      |> Enum.map(fn {id, repetitions} -> {id, length(repetitions)} end)
+      |> Map.new()
+
+    ids
+    |> Enum.map(&(Map.get(repetitions_count, &1, 0) * &1))
+    |> Enum.sum()
+  end
+
   # helpers
   defp fetch_data() do
     day = "01"
@@ -38,7 +51,6 @@ defmodule Aoc.Day01 do
 
   defp parse_input(input) do
     input
-    |> IO.inspect()
     |> String.split("\n", trim: true)
     |> Enum.map(fn row ->
       row
