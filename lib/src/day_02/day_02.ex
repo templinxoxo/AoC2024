@@ -13,25 +13,48 @@ defmodule Aoc.Day02 do
   def execute_part_2(data \\ fetch_data()) do
     data
     |> parse_input()
-
-    0
+    |> Enum.filter(&is_safe?(&1, allow_error: true))
+    |> Enum.count()
   end
 
-  defp is_safe?(row) do
+  defp is_safe?(row, opts \\ []) do
+    row
+    |> row_permutations(opts)
+    |> Enum.any?(&(&1 |> elements_tilt() |> is_tilt_constant?()))
+  end
+
+  defp row_permutations(row, allow_error: true) do
+    0..length(row)
+    |> Enum.map(fn index ->
+      row
+      |> Enum.with_index()
+      |> Enum.reject(fn {_cell, cell_index} -> cell_index == index end)
+      |> Enum.map(fn {cell, _cell_index} -> cell end)
+    end)
+  end
+
+  defp row_permutations(row, _), do: [row]
+
+  defp elements_tilt(row) do
     row
     |> Enum.chunk_every(2, 1, :discard)
     |> Enum.map(fn [a, b] ->
       case b - a do
-        step when step > 0 and step <= 3 -> :inc
-        step when step < 0 and step >= -3 -> :dec
-        step -> :err
+        step when step > 0 and step <= 3 -> :asc
+        step when step < 0 and step >= -3 -> :desc
+        _ -> :err
       end
     end)
-    |> IO.inspect()
-    |> then(fn row ->
-      Enum.all?(row, &(&1 == :inc)) or
-        Enum.all?(row, &(&1 == :dec))
-    end)
+  end
+
+  defp is_tilt_constant?(row_shift) do
+    row_shift
+    |> Enum.uniq()
+    |> case do
+      [:asc] -> true
+      [:desc] -> true
+      _ -> false
+    end
   end
 
   # helpers
