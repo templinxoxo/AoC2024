@@ -13,25 +13,70 @@ defmodule Aoc.Day05 do
   end
 
   def execute_part_2(data \\ fetch_data()) do
-    data
-    |> parse_input()
+    {rules, instructions} = parse_input(data)
 
-    0
+    instructions
+    |> Enum.reject(&is_valid?(&1, rules))
+    |> Enum.map(&fix_instruction(&1, rules))
+    |> Enum.map(&get_middle_element/1)
+    |> Enum.sum()
   end
 
   defp is_valid?(instruction, rules) do
-    index_by_elem =
+    index_by_instruction_elem =
       instruction
       |> Enum.with_index()
       |> Map.new()
 
     rules
-    |> Enum.all?(fn [a, b] ->
-      a_index = index_by_elem[a]
-      b_index = index_by_elem[b]
+    |> filter_active_instructions(instruction)
+    |> Enum.all?(&is_rule_fulfilled(&1, index_by_instruction_elem))
+  end
 
-      is_nil(a_index) or is_nil(b_index) or a_index < b_index
-    end)
+  defp filter_active_instructions(rules, instruction) do
+    Enum.filter(rules, fn [a, b] -> a in instruction and b in instruction end)
+  end
+
+  defp is_rule_fulfilled([a, b], index_by_instruction_elem) do
+    a_index = index_by_instruction_elem[a]
+    b_index = index_by_instruction_elem[b]
+
+    is_nil(a_index) or is_nil(b_index) or a_index < b_index
+  end
+
+  defp fix_instruction(instruction, rules) do
+    active_rules = filter_active_instructions(rules, instruction)
+
+    instruction
+    |> Enum.with_index()
+    |> Map.new()
+    |> flip_incorrect_elements(active_rules)
+  end
+
+  defp flip_incorrect_elements(index_by_instruction_elem, active_rules) do
+    active_rules
+    |> Enum.find(&(!is_rule_fulfilled(&1, index_by_instruction_elem)))
+    |> case do
+      nil ->
+        index_by_instruction_elem
+        |> Enum.sort_by(&elem(&1, 1))
+        |> Enum.map(&elem(&1, 0))
+
+      rule ->
+        index_by_instruction_elem
+        |> flip_indices(rule)
+        |> flip_incorrect_elements(active_rules)
+    end
+  end
+
+  defp flip_indices(index_by_instruction_elem, [a, b]) do
+    a_index = index_by_instruction_elem[a]
+    b_index = index_by_instruction_elem[b]
+
+    Map.merge(
+      index_by_instruction_elem,
+      %{a => b_index, b => a_index}
+    )
   end
 
   defp get_middle_element(instruction),
