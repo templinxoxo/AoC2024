@@ -13,8 +13,8 @@ defmodule Aoc.Day07 do
   def execute_part_2(data \\ fetch_data()) do
     data
     |> parse_input()
-
-    0
+    |> Enum.filter(&equation_valid?(&1, [:sum, :mul, :concat]))
+    |> calculate_calibration_result()
   end
 
   defp equation_valid?({result, numbers}, operators) do
@@ -39,6 +39,7 @@ defmodule Aoc.Day07 do
 
   defp calculate(a, b, :sum), do: a + b
   defp calculate(a, b, :mul), do: a * b
+  defp calculate(a, b, :concat), do: "#{a}#{b}" |> String.to_integer()
 
   # helpers
   defp parse_input(input) do
