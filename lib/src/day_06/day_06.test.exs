@@ -23,9 +23,28 @@ defmodule Aoc.Day06Test do
     assert result == 41
   end
 
+  test "execute_part_1/1 - finds loop from starting position" do
+    test_data = """
+    ....#.....
+    .........#
+    ..........
+    ..#.......
+    .......#..
+    ..........
+    .#.#^.....
+    ........#.
+    #.........
+    ......#...
+    """
+
+    result = Subject.execute_part_1(test_data)
+
+    assert result == :loop
+  end
+
   test "execute_part_2/1" do
     result = Subject.execute_part_2(@test_data)
 
-    assert result == 0
+    assert result == 6
   end
 end
