@@ -8,12 +8,11 @@ defmodule Aoc.Day06 do
     |> parse_input()
     |> then(fn map ->
       obstacles = get_element_positions(map, "#")
+      [starting_position] = get_element_positions(map, "^")
 
-      map
-      |> get_element_positions("^")
-      |> patrol(:up, obstacles)
+      patrol([{starting_position, :up}], obstacles)
     end)
-    |> Enum.uniq()
+    |> Enum.uniq_by(&elem(&1, 0))
     |> Enum.count()
   end
 
@@ -30,13 +29,20 @@ defmodule Aoc.Day06 do
     |> Enum.map(fn {_, coordinates} -> coordinates end)
   end
 
-  defp patrol([current_position | _] = history, direction, obstacles) do
+  defp patrol([{current_position, direction} | _] = history, obstacles) do
     next_position = next_step(current_position, direction)
 
     cond do
-      out_of_bounds?(next_position, obstacles) -> history
-      next_position in obstacles -> patrol(history, change_direction(direction), obstacles)
-      true -> patrol([next_position | history], direction, obstacles)
+      out_of_bounds?(next_position, obstacles) ->
+        history
+
+      next_position in obstacles ->
+        [{current_position, change_direction(direction)} | history]
+        |> patrol(obstacles)
+
+      true ->
+        [{next_position, direction} | history]
+        |> patrol(obstacles)
     end
   end
 
