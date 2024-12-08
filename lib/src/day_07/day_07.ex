@@ -54,11 +54,11 @@ defmodule Aoc.Day07 do
     end)
   end
 
-  defp calculate_calibration_result(data), do:
-    data
-    |> Enum.map(fn {result, _} -> result end)
-    |> Enum.sum()
+  defp calculate_calibration_result(data),
+    do:
+      data
+      |> Enum.map(fn {result, _} -> result end)
+      |> Enum.sum()
 
   defp fetch_data(), do: Aoc.Utils.Api.get_input(07)
-
 end
