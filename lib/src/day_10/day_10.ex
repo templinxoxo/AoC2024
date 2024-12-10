@@ -16,8 +16,8 @@ defmodule Aoc.Day10 do
     data
     |> parse_input()
     |> to_map()
-
-    0
+    |> find_trailheads()
+    |> get_trailheads_score()
   end
 
   defp find_trailheads(nodes_coordinates) do
