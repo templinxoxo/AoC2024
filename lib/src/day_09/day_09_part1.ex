@@ -1,21 +1,14 @@
-defmodule Aoc.Day09 do
+defmodule Aoc.Day09.Part1 do
   @moduledoc """
   Day 09 solutions
   https://adventofcode.com/2024/day/09
   """
-  def execute_part_1(data \\ fetch_data()) do
+  def execute(data \\ fetch_data()) do
     data
     |> parse_input()
     |> unzip_disc()
     |> move_files()
     |> calculate_checksum()
-  end
-
-  def execute_part_2(data \\ fetch_data()) do
-    data
-    |> parse_input()
-
-    0
   end
 
   defp unzip_disc(files) do
@@ -67,12 +60,12 @@ defmodule Aoc.Day09 do
   end
 
   # helpers
-  # defp print(files) do
+  # def print(files) do
   #   files |> Enum.map(&(&1 || ".")) |> Enum.join("") |> IO.inspect(label: "files")
   #   files
   # end
 
-  defp calculate_checksum(numbers) do
+  def calculate_checksum(numbers) do
     numbers
     |> Enum.with_index()
     |> Enum.reject(fn {value, _index} -> is_nil(value) end)
@@ -80,8 +73,11 @@ defmodule Aoc.Day09 do
     |> Enum.sum()
   end
 
-  defp parse_input(input) do
-    input |> String.replace("\n", "") |> String.split("", trim: true) |> Enum.map(&String.to_integer/1)
+  def parse_input(input) do
+    input
+    |> String.replace("\n", "")
+    |> String.split("", trim: true)
+    |> Enum.map(&String.to_integer/1)
   end
 
   defp fetch_data(), do: Aoc.Utils.Api.get_input(09)

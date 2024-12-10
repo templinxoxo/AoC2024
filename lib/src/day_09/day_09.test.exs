@@ -9,14 +9,14 @@ defmodule Aoc.Day09Test do
   """
 
   test "execute_part_1/1" do
-    result = Subject.execute_part_1(@test_data)
+    result = Subject.Part1.execute(@test_data)
 
     assert result == 1928
   end
 
   test "execute_part_2/1" do
-    result = Subject.execute_part_2(@test_data)
+    result = Subject.Part2.execute(@test_data)
 
-    assert result == 0
+    assert result == 2858
   end
 end
