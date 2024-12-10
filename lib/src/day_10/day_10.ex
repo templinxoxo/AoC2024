@@ -24,7 +24,7 @@ defmodule Aoc.Day10 do
     nodes_coordinates
     |> Map.get(0)
     |> Enum.map(&[&1])
-    |> find_trailheads(nodes_coordinates, 1 )
+    |> find_trailheads(nodes_coordinates, 1)
   end
 
   defp find_trailheads(trailheads, _nodes_coordinates, 10) do
@@ -39,7 +39,7 @@ defmodule Aoc.Day10 do
       path
       |> List.last()
       |> next_step_position()
-      |> Enum.filter(& &1 in next_step_coordinates)
+      |> Enum.filter(&(&1 in next_step_coordinates))
       |> Enum.map(&Enum.concat(path, [&1]))
     end)
     # |> remove_duplicated_paths()
