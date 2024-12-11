@@ -20,9 +20,9 @@ defmodule Aoc.Day11Test do
     assert result == 55312
   end
 
-  # test "execute/1 - part 2" do
-  #   result = Subject.execute(@test_data)
+  test "execute/1 - part 2" do
+    result = Subject.execute(@test_data, 75)
 
-  #   assert result == 0
-  # end
+    IO.puts(result)
+  end
 end
