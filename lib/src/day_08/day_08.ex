@@ -77,7 +77,7 @@ defmodule Aoc.Day08 do
     |> Enum.map(fn x ->
       y = linear_function.(x)
 
-      if y >= 0 and y <= max_y and not is_fraction?(y) do
+      if y >= 0 and y <= max_y and not Aoc.Helpers.is_fraction?(y) do
         {round(x), round(y)}
       else
         nil
@@ -103,13 +103,6 @@ defmodule Aoc.Day08 do
   end
 
   # helpers
-  @fraction_precision 100
-  defp is_fraction?(number) when is_integer(number), do: false
-
-  defp is_fraction?(number) do
-    round(number * @fraction_precision) |> rem(@fraction_precision) |> then(&(&1 != 0))
-  end
-
   defp flatten_and_deduplicate(list) do
     list
     |> List.flatten()
