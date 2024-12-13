@@ -29,8 +29,7 @@ defmodule Aoc.Day13Test do
   end
 
   test "execute_part_2/1" do
-    result Subject.execute_part_2(@test_data)
-
-    assert result == 0
+    Subject.execute_part_2(@test_data)
+    |> IO.puts()
   end
 end

@@ -13,8 +13,11 @@ defmodule Aoc.Day13 do
   def execute_part_2(data \\ fetch_data()) do
     data
     |> parse_input()
-
-    0
+    |> Enum.map(fn [xa, ya, xb, yb, rx, ry] ->
+      [xa, ya, xb, yb, 10_000_000_000_000 + rx, 10_000_000_000_000 + ry]
+    end)
+    |> Enum.map(&solve/1)
+    |> calculate_tokens()
   end
 
   @doc """
