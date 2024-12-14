@@ -25,10 +25,4 @@ defmodule Aoc.Day14Test do
 
     assert result == 12
   end
-
-  test "execute_part_2/1" do
-    result = Subject.execute_part_2(@test_data)
-
-    assert result == 0
-  end
 end
