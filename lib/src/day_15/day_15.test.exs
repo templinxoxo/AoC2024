@@ -16,8 +16,8 @@ defmodule Aoc.Day15Test do
   <^^>>>vv<v>>v<<
   """
 
-  test "execute_part_1/1 - small input" do
-    result = Subject.execute_part_1(@test_data_1)
+  test "Part1.execute/1 - small input" do
+    result = Subject.Part1.execute(@test_data_1)
 
     assert result == 2028
   end
@@ -46,15 +46,15 @@ defmodule Aoc.Day15Test do
   v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^
   """
 
-  test "execute_part_1/1" do
-    result = Subject.execute_part_1(@test_data_2)
+  test "Part1.execute/1" do
+    result = Subject.Part1.execute(@test_data_2)
 
     assert result == 10092
   end
 
-  test "execute_part_2/1" do
-    result = Subject.execute_part_2(@test_data_2)
+  test "Part2.execute/1" do
+    result = Subject.Part2.execute(@test_data_2)
 
-    assert result == 0
+    assert result == 9021
   end
 end
