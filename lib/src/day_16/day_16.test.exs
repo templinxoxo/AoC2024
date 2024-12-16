@@ -56,6 +56,6 @@ defmodule Aoc.Day16Test do
   test "execute_part_2/1" do
     result = Subject.execute_part_2(@test_data_2)
 
-    assert result == 0
+    assert result == 64
   end
 end
