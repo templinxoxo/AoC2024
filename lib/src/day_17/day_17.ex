@@ -12,10 +12,51 @@ defmodule Aoc.Day17 do
   end
 
   def execute_part_2(data \\ fetch_data()) do
-    data
-    |> parse_input()
+    {program, _register} = parse_input(data)
 
-    0
+    # for both test and actual inputs, all registries values depend solely on initial `a` registry in each iteration
+    # where 1 iteration is starting from instruction_pointer 0 until returning a value (output).
+    # Both test and actual programs have the same cycle:
+    #   start with a,
+    #   "do stuff",
+    #   change a
+    #   output a value
+    #   return to instruction_pointer 0
+    #
+    # Moreover, `change a` instruction is constant way between iterations in both programs - `0,3`,
+    # meaning that new a value will always be `floor(a/8)`. Reversing this logic and working backwards
+    # gives us the a range between iterations to be a = 8 * a + 0..7
+    # We also know that in the last iteration, a result has to be 0 so program can halt (so a in 0..7)
+    #
+    # with those assumptions, we can work backwards through program and use it as expected output
+    # only having to check 7 possible values each iteration
+
+    # incrementally take n elements (starting with 1) from the back of the program
+    # which will be used as expected program output
+    1..length(program)
+    # start with a = [0] which is required for program to halt in the last iteration
+    # each iteration can return multiple possible a values for the reduced output
+    # since a is a range, not a single value
+    |> Enum.reduce([0], fn n, a_values ->
+      # prepare output
+      expected_output = Enum.take(program, -n)
+
+      # create possible a values range to test against input
+      0..7
+      |> Enum.flat_map(fn i ->
+        Enum.map(a_values, &(&1 * 8 + i))
+      end)
+      |> Enum.filter(fn a_to_check ->
+        # we don't care about b and c values - those will get overridden based on a
+        register = %{a: a_to_check, b: 0, c: 0}
+        # run program with a given registry and check if output matches expected output
+        output = run(program, 0, register)
+
+        output == expected_output
+      end)
+    end)
+    # after running all iterations, take the lowest value
+    |> Enum.min()
   end
 
   defp run(program, instruction_pointer, register, output \\ []) do
