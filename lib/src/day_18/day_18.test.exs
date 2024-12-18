@@ -39,8 +39,8 @@ defmodule Aoc.Day18Test do
   end
 
   test "execute_part_2/1" do
-    result = Subject.execute_part_2(@test_data)
+    result = Subject.execute_part_2(@test_data, {6, 6})
 
-    assert result == 0
+    assert result == {6, 1}
   end
 end
