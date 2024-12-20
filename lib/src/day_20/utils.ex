@@ -49,7 +49,8 @@ defmodule Aoc.Day20.Utils do
   def in_bounds?({x, y}, map), do: x >= 0 and y >= 0 and not is_nil(get_at(map, {x, y}))
   def is_path?(coordinates, map), do: get_at(map, coordinates) in [".", "E", "S"]
   def is_end?(coordinates, map), do: get_at(map, coordinates) == "E"
-  def get_at(map, {x, y}), do: map |> Enum.at(y) |> Enum.at(x)
+  def is_wall?(coordinates, map), do: get_at(map, coordinates) == "#"
+  def get_at(map, {x, y}), do: map |> Enum.at(y, []) |> Enum.at(x)
 
   def parse_input(input) do
     input

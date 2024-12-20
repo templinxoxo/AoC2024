@@ -22,8 +22,8 @@ defmodule Aoc.Day20Test do
   ###############
   """
 
-  test "execute_part_1/1" do
-    result = Subject.execute_part_1(@test_data)
+  test "execute/1 - cheat distance 2" do
+    result = Subject.execute(@test_data, 2) |> Subject.filter_cheats_by_saved_distance(2)
 
     assert result == %{
              2 => 14,
@@ -40,9 +40,24 @@ defmodule Aoc.Day20Test do
            }
   end
 
-  test "execute_part_2/1" do
-    result = Subject.execute_part_2(@test_data)
+  test "execute/1 - cheat distance 20" do
+    result = Subject.execute(@test_data, 20) |> Subject.filter_cheats_by_saved_distance(50)
 
-    assert result == 0
+    assert result == %{
+             50 => 32,
+             52 => 31,
+             54 => 29,
+             56 => 39,
+             58 => 25,
+             60 => 23,
+             62 => 20,
+             64 => 19,
+             66 => 12,
+             68 => 14,
+             70 => 12,
+             72 => 22,
+             74 => 4,
+             76 => 3
+           }
   end
 end
