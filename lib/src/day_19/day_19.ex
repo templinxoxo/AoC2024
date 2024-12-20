@@ -9,27 +9,30 @@ defmodule Aoc.Day19 do
       {towels, patterns} = parse_input(data)
 
       patterns
-      |> Enum.filter(&pattern_possible?(&1, towels))
+      |> Enum.map(&combinations_number(&1, towels))
+      |> Enum.filter(& &1 > 0)
       |> Enum.count()
     end
 
   def execute_part_2(data \\ fetch_data()) do
-    data
-    |> parse_input()
+    {towels, patterns} = parse_input(data)
 
-    0
+    patterns
+    |> Enum.map(&combinations_number(&1, towels))
+    |> Enum.sum()
   end
 
-  defp pattern_possible?("", _towels), do: true
+  defp combinations_number("", _towels), do: 1
 
-  defmemop pattern_possible?(pattern, towels), expires_in: 60 * 1000 do
+  defmemop combinations_number(pattern, towels), expires_in: 60 * 1000 do
     towels
     |> Enum.filter(&String.starts_with?(pattern, &1))
-    |> Enum.any?(fn towel ->
+    |> Enum.map(fn towel ->
       pattern
       |> String.slice(String.length(towel), String.length(pattern))
-      |> pattern_possible?(towels)
+      |> combinations_number(towels)
     end)
+    |> Enum.sum()
   end
 
   # helpers
