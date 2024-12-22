@@ -4,29 +4,82 @@ defmodule Aoc.Day22 do
   https://adventofcode.com/2024/day/22
   """
   alias Aoc.Utils.BitwiseXor
+  use Memoize
 
   def execute_part_1(data \\ fetch_data()) do
     data
     |> parse_input()
-    |> Enum.map(& &1 |> IO.inspect() |> generate_secret_numbers(2000))
+    |> Enum.map(fn secret_number ->
+      secret_number
+      |> generate_secret_numbers()
+      |> hd()
+    end)
     |> Enum.sum()
   end
 
   def execute_part_2(data \\ fetch_data()) do
     data
     |> parse_input()
-
-    0
+    |> Enum.map(fn secret_number ->
+      secret_number
+      |> generate_secret_numbers()
+      |> Enum.reverse()
+      |> to_price_fluctuation()
+    end)
+    # group by fluctuations
+    |> List.flatten()
+    |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
+    # for each fluctuation group, sum prices
+    |> Enum.map(fn {fluctuation, prices} ->
+      {fluctuation, Enum.sum(prices)}
+    end)
+    # find the best possible fluctuation and it's price
+    |> Enum.max_by(&elem(&1, 1))
+    |> IO.inspect(charlists: :as_lists)
+    |> elem(1)
   end
 
-  defp generate_secret_numbers(secret_number, 0), do: secret_number
+  defp to_price_fluctuation(secret_numbers) do
+    secret_numbers
+    # get price for each secret (ones digit)
+    |> Enum.map(&rem(&1, 10))
+    # add price fluctuations
+    |> Enum.chunk_every(2, 1, :discard)
+    |> Enum.map(fn [a, b] -> {b - a, b} end)
+    # chunk by 4 into price sequences
+    |> Enum.chunk_every(4, 1, :discard)
+    |> Enum.map(fn sequence ->
+      price_fluctuation = Enum.map(sequence, &elem(&1, 0))
+      {_, price} = List.last(sequence)
 
-  defp generate_secret_numbers(secret_number, iterations_left) do
+      {price_fluctuation, price}
+    end)
+    # discard repeated fluctuations
+    |> Enum.uniq_by(&elem(&1, 0))
+  end
+
+  defmemop generate_secret_numbers(secret_number), permanent: true do
+    [secret_number]
+    |> IO.inspect(charlists: :as_lists)
+    |> generate_secret_numbers(2000)
+  end
+
+  defp generate_secret_numbers(secret_numbers_history, iterations)
+       when length(secret_numbers_history) > iterations,
+       do: secret_numbers_history
+
+  defp generate_secret_numbers([secret_number | _] = secret_numbers_history, iterations) do
+    secret_number
+    |> get_next_secret_number()
+    |> then(&[&1 | secret_numbers_history])
+    |> generate_secret_numbers(iterations)
+  end
+
+  defmemop get_next_secret_number(secret_number), permanent: true do
     secret_number
     |> secret_number_transformation(:mul, 64)
     |> secret_number_transformation(:div, 32)
     |> secret_number_transformation(:mul, 2048)
-    |> generate_secret_numbers(iterations_left - 1)
   end
 
   defp secret_number_transformation(secret_number, transformation, factor) do

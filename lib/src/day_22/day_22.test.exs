@@ -4,7 +4,7 @@ defmodule Aoc.Day22Test do
   alias Aoc.Day22, as: Subject
 
   # replace with test data from the AoC puzzle page
-  @test_data """
+  @test_data_1 """
   1
   10
   100
@@ -12,14 +12,21 @@ defmodule Aoc.Day22Test do
   """
 
   test "execute_part_1/1" do
-    result = Subject.execute_part_1(@test_data)
+    result = Subject.execute_part_1(@test_data_1)
 
     assert result == 37_327_623
   end
 
-  test "execute_part_2/1" do
-    result = Subject.execute_part_2(@test_data)
+  @test_data_2 """
+  1
+  2
+  3
+  2024
+  """
 
-    assert result == 0
+  test "execute_part_2/1" do
+    result = Subject.execute_part_2(@test_data_2)
+
+    assert result == 23
   end
 end
