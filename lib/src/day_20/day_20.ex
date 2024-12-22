@@ -52,6 +52,7 @@ defmodule Aoc.Day20 do
   end
 
   defp get_cheat_moves([], _map, _visited, _cheat_step, _allowed_cheat_distance), do: []
+
   defp get_cheat_moves(_current_positions, _map, _visited, cheat_step, allowed_cheat_distance)
        when cheat_step > allowed_cheat_distance,
        do: []
@@ -73,7 +74,6 @@ defmodule Aoc.Day20 do
         |> Enum.filter(&Utils.is_path?(&1, map))
         |> Enum.map(&{&1, cheat_step})
 
-
       # for positions still on wall, get next valid cheat moves until cheating distance is still not reached
       # positions_on_wall
       next_positions
@@ -84,6 +84,7 @@ defmodule Aoc.Day20 do
         allowed_cheat_distance
       )
       |> Enum.concat(valid_cheats)
+
       # min by and dedup by coordinates
       # |> Enum.sort_by(fn {coordinates, _distance} -> coordinates end)
       # |> Enum.uniq_by(fn {coordinates, _distance} -> coordinates end)
@@ -102,8 +103,9 @@ defmodule Aoc.Day20 do
     |> Map.new()
   end
 
-  defp count(cheats_frequencies), do:
-    cheats_frequencies
-    |> Enum.map(fn {_saved_distance, count} -> count end)
-    |> Enum.sum()
+  defp count(cheats_frequencies),
+    do:
+      cheats_frequencies
+      |> Enum.map(fn {_saved_distance, count} -> count end)
+      |> Enum.sum()
 end
