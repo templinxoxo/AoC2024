@@ -6,13 +6,13 @@ defmodule Aoc.Day19 do
   use Memoize
 
   def execute_part_1(data \\ fetch_data()) do
-      {towels, patterns} = parse_input(data)
+    {towels, patterns} = parse_input(data)
 
-      patterns
-      |> Enum.map(&combinations_number(&1, towels))
-      |> Enum.filter(& &1 > 0)
-      |> Enum.count()
-    end
+    patterns
+    |> Enum.map(&combinations_number(&1, towels))
+    |> Enum.filter(&(&1 > 0))
+    |> Enum.count()
+  end
 
   def execute_part_2(data \\ fetch_data()) do
     {towels, patterns} = parse_input(data)
