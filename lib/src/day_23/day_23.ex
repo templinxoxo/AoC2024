@@ -35,6 +35,7 @@ defmodule Aoc.Day23 do
 
   defp find_connection_sets(connection_sets, [connection | remaining_connections]) do
     [connection]
+    |> IO.inspect()
     # find a new connections set from the next still unused connection
     |> extend_connection_set(remaining_connections)
     # call again with the new connection set and less remaining connections
@@ -43,18 +44,21 @@ defmodule Aoc.Day23 do
 
       connection_sets
       |> Enum.concat(new_connection_sets)
-      |> find_connection_sets(remaining_connections)
+      |> find_connection_sets(remaining_connections -- new_connections)
+      # |> find_connection_sets(remaining_connections)
     end)
   end
 
   defp extend_connection_set(connections_set, connections) do
     connection_set_nodes = get_nodes(connections_set)
 
-    connections
     # get all new connections that could be reached from all current set nodes
-    |> Enum.filter(fn [a, b] ->
-      a in connection_set_nodes or b in connection_set_nodes
-    end)
+    {possible_connections, remaining_connections} =
+      Enum.split_with(connections, fn [a, b] ->
+        a in connection_set_nodes or b in connection_set_nodes
+      end)
+
+    possible_connections
     # get all new possible nodes
     |> get_nodes()
     |> Kernel.--(connection_set_nodes)
@@ -62,18 +66,42 @@ defmodule Aoc.Day23 do
     |> Enum.filter(fn node ->
       Enum.all?(connection_set_nodes, &has_connection?(connections, [&1, node]))
     end)
-    # create connections by new nodes
-    |> Enum.map(fn node ->
-      Enum.flat_map(connection_set_nodes, &[[&1, node], [node, &1]])
-    end)
     |> case do
       # if no new connections are found - return finished set
       [] ->
         [connections_set]
 
-      new_connections ->
-        new_connections
-        |> Enum.flat_map(&extend_connection_set(connections_set ++ &1, connections -- &1))
+      nodes ->
+        # take connections only between new nodes
+        inter_node_connections =
+          Enum.filter(connections, fn [a, b] -> a in nodes and b in nodes end)
+
+        IO.inspect("inter_node_connections")
+        # search for connection sets between new nodes
+        inter_node_connection_sets =
+          inter_node_connections
+          |> find_connection_sets()
+          |> Enum.map(&get_nodes/1)
+        IO.inspect("inter_node_connections - done")
+
+        # get not connected nodes and return as list of single node connections
+        lone_nodes =
+          inter_node_connections |> get_nodes() |> then(&(nodes -- &1)) |> Enum.map(&[&1])
+
+        inter_node_connection_sets
+        |> Enum.concat(lone_nodes)
+        |> Enum.map(fn nodes ->
+          # group nodes into sets of 2 to create new connections
+          inter_node_connection_sets = into_sets(nodes, 2) |> Enum.flat_map(&[&1, Enum.reverse(&1)])
+
+          nodes
+          # create new connections to current set nodes
+          |> Enum.flat_map(fn node ->
+            Enum.flat_map(connection_set_nodes, &[[&1, node], [node, &1]])
+          end)
+          |> Enum.concat(inter_node_connection_sets)
+          |> Enum.flat_map(&extend_connection_set(connections_set ++ &1, remaining_connections -- inter_node_connection_sets))
+        end)
     end
   end
 
@@ -98,7 +126,6 @@ defmodule Aoc.Day23 do
   defp get_nodes(connection_set), do: connection_set |> List.flatten() |> Enum.uniq()
 
   defp deduplicate(node_sets), do: node_sets |> Enum.map(&Enum.sort/1) |> Enum.uniq()
-
 
   defp filter_by_node_leading_letter(nodes, leading_letter),
     do:
