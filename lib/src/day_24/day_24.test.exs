@@ -79,9 +79,31 @@ defmodule Aoc.Day24Test do
     assert result == 2024
   end
 
-  # test "execute_part_2/1" do
-  #   result = Subject.execute_part_2(@test_data)
+  @test_data_3 """
+  x00: 0
+  x01: 1
+  x02: 0
+  x03: 1
+  x04: 0
+  x05: 1
+  y00: 0
+  y01: 0
+  y02: 1
+  y03: 1
+  y04: 0
+  y05: 1
 
-  #   assert result == 0
-  # end
+  x00 AND y00 -> z05
+  x01 AND y01 -> z02
+  x02 AND y02 -> z01
+  x03 AND y03 -> z03
+  x04 AND y04 -> z04
+  x05 AND y05 -> z00
+  """
+
+  test "execute_part_2/1" do
+    result = Subject.execute_part_2(@test_data_3)
+
+    assert result == 0
+  end
 end

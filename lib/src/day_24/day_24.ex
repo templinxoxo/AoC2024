@@ -11,14 +11,38 @@ defmodule Aoc.Day24 do
     |> Integer.undigits(2)
   end
 
+  @swapped_pairs_number 4
   def execute_part_2(data \\ fetch_data()) do
-    data
-    |> parse_input()
+    {initial_values, logic_gates} = parse_input(data)
 
-    0
+    # get expected return value
+    expected_value = get_expected_value(initial_values)
+
+    logic_gates
+    # get actual bit value from current gates
+    |> process_gates(initial_values)
+    # get mismatching bits in result and convert to appropriate gates
+    |> get_mismatching_bits(expected_value)
+    |> Enum.map(&to_key/1)
+    # filter only logic gates that point towards faulty gates
+    |> get_nodes_pointing_to_result_nodes(logic_gates)
+    |> get_gates_to_nodes(logic_gates)
+    # split into n-element sets (when n elements were swapped)
+    |> into_sets(@swapped_pairs_number)
+    # split each set into 2-element sets
+    |> Enum.flat_map(&into_sets(&1, 2))
+    |> then(fn swaps ->
+      IO.inspect("total of #{length(swaps)} swaps to check")
+      swaps
+    end)
+    |> Enum.with_index()
+    |> Enum.find(fn {swap, i} ->
+      if rem(i, 100) == 0, do: IO.puts("Checking swap #{i}")
+      swap_valid?(swap, expected_value, initial_values, logic_gates)
+    end)
   end
 
-    defp process_gates([], values), do: get_binary_by_key(values, "z")
+  defp process_gates([], values), do: get_binary_by_key(values, "z")
 
   defp process_gates(gates, values) do
     # get all gates for which both input values are known
@@ -48,6 +72,72 @@ defmodule Aoc.Day24 do
   defp produce_result([0, 1], "XOR"), do: 1
   defp produce_result(_, _), do: 0
 
+  defp get_expected_value(initial_values) do
+    x_wire_value = get_binary_by_key(initial_values, "x") |> Integer.undigits(2)
+    y_wire_value = get_binary_by_key(initial_values, "y") |> Integer.undigits(2)
+
+    Integer.digits(x_wire_value + y_wire_value, 2)
+  end
+
+  # from all gates -> get all nodes pointing to given nodes
+  # and their parents
+  # and so on until initial values are reached
+  defp get_nodes_pointing_to_result_nodes(result_nodes, all_gates) do
+    all_gates
+    # filter all gates pointing to current result nodes
+    |> Enum.filter(fn {_input_values, _logic_expression, result_key} ->
+      result_key in result_nodes
+    end)
+    # return input nodes from these gates
+    |> Enum.flat_map(fn {input_values, _logic_expression, _result_key} ->
+      input_values
+    end)
+    # drop initial value nodes or already processed ones
+    |> Enum.reject(fn node ->
+      # are those 2 y and x necessary?
+      String.starts_with?(node, "x") or
+        String.starts_with?(node, "y") or
+        node in result_nodes
+    end)
+    |> Kernel.--(result_nodes)
+    |> case do
+      [] ->
+        result_nodes
+
+      new_nodes ->
+        get_nodes_pointing_to_result_nodes(new_nodes ++ result_nodes, all_gates)
+    end
+  end
+
+  # from set of result nodes -> get all gates that have these nodes as input
+  defp get_gates_to_nodes(nodes, all_gates) do
+    Enum.filter(all_gates, fn {_input_values, _logic_expression, result_key} ->
+      result_key in nodes
+    end)
+  end
+
+  defp swap_valid?(nodes_to_swap, expected_value, initial_values, all_gates) do
+    [nodes_to_swap]
+    # swap results between pairs
+    |> Enum.flat_map(fn [
+      {node_1_values, node_1_logical_expression, node_1_result},
+      {node_2_values, node_2_logical_expression, node_2_result}
+      ] ->
+        [
+          {node_1_values, node_1_logical_expression, node_2_result},
+          {node_2_values, node_2_logical_expression, node_1_result}
+        ]
+      end)
+    # add to all gates
+    |> Kernel.++(all_gates)
+    # remove pre-swap gates
+    |> Kernel.--(List.flatten(nodes_to_swap))
+    # process resulting gates
+    |> process_gates(initial_values)
+    # compare with expected value
+    |> Kernel.==(expected_value)
+  end
+
   defp get_binary_by_key(values, result_key) do
     values
     # get all key keys
@@ -56,6 +146,14 @@ defmodule Aoc.Day24 do
     |> Enum.sort_by(fn {key, _} -> key end, :desc)
     |> Enum.map(fn {_, value} -> value end)
   end
+
+  defp get_mismatching_bits(bits_1, bits_2) do
+    0..(length(bits_1) - 1)
+    |> Enum.filter(fn i -> Enum.at(bits_1, i) != Enum.at(bits_2, i) end)
+  end
+
+  defp to_key(number) when number < 10, do: "z0#{number}"
+  defp to_key(number), do: "z#{number}"
 
   # helpers
   defp parse_input(input) do
@@ -82,6 +180,22 @@ defmodule Aoc.Day24 do
       end)
 
     {initial_values, logic_gates}
+  end
+
+  # split list into uniq n-sized sets
+  def into_sets(set, size) when length(set) == size, do: [set]
+  def into_sets(set, 1), do: Enum.map(set, &[&1])
+  def into_sets(set, size) when length(set) < size, do: []
+
+  def into_sets(set, size) do
+    length(set)..2//-1
+    |> Enum.flat_map(fn i ->
+      [node | remaining_nodes] = Enum.take(set, -i)
+
+      remaining_nodes
+      |> into_sets(size - 1)
+      |> Enum.map(&[node | &1])
+    end)
   end
 
   defp fetch_data(), do: Aoc.Utils.Api.get_input(24)
